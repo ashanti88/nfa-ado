@@ -1,0 +1,31 @@
+trigger:
+- main
+
+pool:
+  vmImage: ubuntu-latest
+
+steps:
+# Ensure target directory exists on the VM
+- task: SSH@0
+  inputs:
+    sshEndpoint: 'MyAzureVM'
+    runOptions: 'commands'
+    commands: mkdir -p /home/gurudjihangir22/nfa-ado
+
+# Copy all files from the build agent to the VM target folder
+- task: CopyFilesOverSSH@0
+  inputs:
+    sshEndpoint: 'MyAzureVM'
+    sourceFolder: '$(Build.SourcesDirectory)'
+    contents: '**'
+    targetFolder: '/home/gurudjihangir22/nfa-ado'
+
+# SSH into the VM, install npm dependencies, and start the app in background
+- task: SSH@0
+  inputs:
+    sshEndpoint: 'MyAzureVM'
+    runOptions: 'commands'
+    commands: |
+      cd /home/gurudjihangir22/nfa-ado
+      npm install
+      nohup npm start &
